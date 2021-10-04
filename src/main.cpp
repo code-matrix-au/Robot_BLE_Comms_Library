@@ -1,18 +1,17 @@
 #include <Arduino.h>
-#include <BLE_TX.h>
+#include <BLE_TX.cpp>
 
-BLE_TX my;
+
 
 
 
 void setup() {
- 
-  
-  // put your setup code here, to run once:
+ BLE_TX_init();
+
 }
 
 void loop() {
-my.left_joystick(110);
-delay(100);
+  
   // put your main code here, to run repeatedly:
 }
+
