@@ -7,30 +7,40 @@ struct values
     byte right_joystick;
     bool emergency_stop;
     bool start_stop;
-    bool open_close; 
-}val;
+    bool open_close;
+} val;
 
-void BLE_RX_init(){
-     val={.left_joystick=0,
-        .right_joystick=0, 
-        .emergency_stop=false,
-        .start_stop= false,
-        .open_close=false};
+struct state
+{
+    byte rpm_l;
+    byte rpm_r;
+    byte door_state;
+    byte moving_status;
+    byte feedback_status;
+    byte packet_id;
+} robot_state;
 
-        Serial.begin(9600);
-        //Serial1.begin(9600);
+void BLE_RX_init()
+{
+    val = {.left_joystick = 0,
+           .right_joystick = 0,
+           .emergency_stop = false,
+           .start_stop = false,
+           .open_close = false};
+
+    Serial.begin(9600);
+    //Serial1.begin(9600);
 }
 
-if(myTransfer.available())
-  {
-uint16_t recSize = 0;
+void serialEvent()
+{
+}
 
-
-
-
-  }
-
-
+/**
+ * The functions to access data sent 
+ * from the host controler.
+ * 
+ */
 
 int left_joystick()
 {
@@ -46,11 +56,63 @@ bool emergency_stop()
 }
 bool start_stop()
 {
-   return val.start_stop;
+    return val.start_stop;
 }
-
-
+bool open_close()
+{
+    return val.open_close;
+}
 bool connection()
 {
-    
+}
+
+/**
+ * Below are the functions that are 
+ * used to send robot state/diagnostics 
+ * data back to the host controller.
+ */
+
+void rpm_l(byte x)
+{
+    if (robot_state.rpm_l != x)
+    {
+        robot_state.rpm_l = x;
+    }
+}
+void rpm_r(byte x)
+{
+    if (robot_state.rpm_r != x)
+    {
+        robot_state.rpm_r = x;
+    }
+}
+void door_state(byte x)
+{
+    if (robot_state.door_state != x)
+    {
+        robot_state.door_state = x;
+    }
+}
+void moving_status(byte x)
+{
+    if (robot_state.moving_status != x)
+    {
+        robot_state.moving_status = x;
+    }
+}
+
+void feedback_status(byte x)
+{
+    if (robot_state.feedback_status != x)
+    {
+        robot_state.feedback_status = x;
+    }
+}
+
+void packet_id(byte x)
+{
+    if (robot_state.packet_id != x)
+    {
+        robot_state.packet_id = x;
+    }
 }
