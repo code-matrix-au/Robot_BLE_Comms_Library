@@ -1,5 +1,10 @@
+#pragma once
+
 #include "Arduino.h"
 #include "SerialTransfer.h"
+#include "Wire.h"
+
+SerialTransfer dataPayload;
 
 struct values
 {
@@ -14,10 +19,11 @@ struct state
 {
     byte rpm_l;
     byte rpm_r;
-    byte door_state;
-    byte moving_status;
+    bool door_state;
+    bool moving_status;
     byte feedback_status;
     byte packet_id;
+
 } robot_state;
 
 void BLE_RX_init()
@@ -27,19 +33,32 @@ void BLE_RX_init()
            .emergency_stop = false,
            .start_stop = false,
            .open_close = false};
-
     Serial.begin(9600);
-    //Serial1.begin(9600);
+    Serial1.begin(9600);
+    dataPayload.begin(Serial1);
+}
+// read serial data if its available
+void serial1Event()
+{
+    if(dataPayload.available())
+    {
+        uint16_t recSize = 0;
+        recSize = dataPayload.rxObj(val, recSize);
+    }
 }
 
-void serialEvent()
+// transmit data
+void transmit_data()
 {
+    uint16_t packetSize = 0;
+    packetSize = dataPayload.txObj(robot_state, packetSize);
+    dataPayload.sendData(packetSize);
 }
+
 
 /**
  * The functions to access data sent 
  * from the host controler.
- * 
  */
 
 int left_joystick()
@@ -64,6 +83,7 @@ bool open_close()
 }
 bool connection()
 {
+    return false;
 }
 
 /**
