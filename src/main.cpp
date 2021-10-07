@@ -11,7 +11,7 @@ void setup() {
 }
 
 void loop() {
-  
+  mySerialEvent();
   // put your main code here, to run repeatedly:
 }
 

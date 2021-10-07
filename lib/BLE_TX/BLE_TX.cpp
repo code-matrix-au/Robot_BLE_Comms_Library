@@ -1,5 +1,3 @@
-#pragma once
-
 #include "Arduino.h"
 #include <SoftwareSerial.h>
 #include "SerialTransfer.h"
@@ -7,20 +5,16 @@
 
 SoftwareSerial mySerial(2, 3);
 SerialTransfer dataPayload;
-enum state
-{
-    Working = 1,
-    Failed = 0
-};
+unsigned long startMillis;
+unsigned long currentMillis;
+bool link;
 struct values
 {   
-   // char startOfLine;
     byte left_joystick;
     byte right_joystick;
     bool emergency_stop;
     bool start_stop;
     bool open_close;
-   // char endOfLine;
 } val;
 
 struct states
@@ -33,17 +27,13 @@ struct states
     byte packet_id;
 } robot_state;
 
-bool link;
-int array;
 void BLE_TX_init()
 {
-    val = {//.startOfLine = '~',
-           .left_joystick = 26,
+    val = {.left_joystick = 26,
            .right_joystick = 76,
            .emergency_stop = 0,
            .start_stop = 1,
-           .open_close = 0,
-           //.endOfLine = '\n'           
+           .open_close = 0        
            };
 
     mySerial.begin(9600);
@@ -55,6 +45,7 @@ void BLE_TX_init()
     TCNT1 = 3036;
     TCCR1B |= (1 << CS12);
     TIMSK1 |= (1 << TOIE1);
+    startMillis = millis();
 }
 
 
@@ -64,7 +55,6 @@ void transmit_data()
     TCNT1 = 3036;
     uint16_t packetSize = 0;
     packetSize = dataPayload.txObj(val, packetSize);
-   // packetSize = dataPayload.txObj(arr, packetSize);
     dataPayload.sendData(packetSize);
 }
 /**
@@ -128,7 +118,16 @@ void start_stop(bool x)
 {
     if (val.start_stop != x)
     {
+        startMillis = currentMillis;
         val.start_stop = x;
+        transmit_data();
+    }
+}
+void open_close(bool x)
+{
+    if (val.open_close != x)
+    {
+        val.open_close = x;
         transmit_data();
     }
 }
@@ -150,6 +149,21 @@ ISR(TIMER1_OVF_vect)
     
 }
 
-void serialEvent()
+void mySerialEvent()
 {
+    if(dataPayload.available())
+    {
+        uint16_t packetSize = 0;
+        packetSize = dataPayload.rxObj(robot_state, packetSize);
+        startMillis = currentMillis;
+    }
+    else{
+        currentMillis = millis();
+        if(currentMillis - startMillis >= 3000)
+        {
+            val.start_stop = false;
+            robot_state.moving_status= false;
+            startMillis = currentMillis;
+        }
+    }
 }

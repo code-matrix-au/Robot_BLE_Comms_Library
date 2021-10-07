@@ -1,10 +1,11 @@
-#pragma once
-
 #include "Arduino.h"
 #include "SerialTransfer.h"
 #include "Wire.h"
 
 SerialTransfer dataPayload;
+
+unsigned long startMillis;
+unsigned long currentMillis;
 
 struct values
 {
@@ -22,8 +23,6 @@ struct state
     bool door_state;
     bool moving_status;
     byte feedback_status;
-    byte packet_id;
-
 } robot_state;
 
 void BLE_RX_init()
@@ -36,15 +35,7 @@ void BLE_RX_init()
     Serial.begin(9600);
     Serial1.begin(9600);
     dataPayload.begin(Serial1);
-}
-// read serial data if its available
-void serial1Event()
-{
-    if(dataPayload.available())
-    {
-        uint16_t recSize = 0;
-        recSize = dataPayload.rxObj(val, recSize);
-    }
+    startMillis = millis();
 }
 
 // transmit data
@@ -54,6 +45,32 @@ void transmit_data()
     packetSize = dataPayload.txObj(robot_state, packetSize);
     dataPayload.sendData(packetSize);
 }
+
+
+// read serial data if its available
+void serialEvent1()
+{
+    if(dataPayload.available())
+    {
+        uint16_t packetSize = 0;
+        packetSize = dataPayload.rxObj(val, packetSize);
+        transmit_data(); 
+        startMillis = currentMillis;
+    }
+    
+}
+
+void connection_timeout(){
+    currentMillis = millis();
+    if(currentMillis - startMillis >= 3000)
+    {
+        val.start_stop = false;
+        robot_state.moving_status= false;
+        transmit_data(); 
+        startMillis = currentMillis;
+    }
+}
+
 
 
 /**
@@ -106,14 +123,14 @@ void rpm_r(byte x)
         robot_state.rpm_r = x;
     }
 }
-void door_state(byte x)
+void door_state(bool x)
 {
     if (robot_state.door_state != x)
     {
         robot_state.door_state = x;
     }
 }
-void moving_status(byte x)
+void moving_status(bool x)
 {
     if (robot_state.moving_status != x)
     {
@@ -121,18 +138,10 @@ void moving_status(byte x)
     }
 }
 
-void feedback_status(byte x)
+void feedback_status(bool x)
 {
     if (robot_state.feedback_status != x)
     {
         robot_state.feedback_status = x;
-    }
-}
-
-void packet_id(byte x)
-{
-    if (robot_state.packet_id != x)
-    {
-        robot_state.packet_id = x;
     }
 }
