@@ -25,7 +25,7 @@ struct state
     byte feedback_status;
 } robot_state;
 
-void BLE_RX_init()
+void BLE_MEGA_init()
 {
     val = {.left_joystick = 0,
            .right_joystick = 0,

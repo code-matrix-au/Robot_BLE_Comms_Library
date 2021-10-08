@@ -1,12 +1,12 @@
 #include <Arduino.h>
-#include <BLE_TX.cpp>
+#include <BLE_UNO.cpp>
 
 
 
 
 
 void setup() {
- BLE_TX_init();
+ BLE_UNO_init();
 
 }
 

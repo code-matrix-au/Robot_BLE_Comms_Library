@@ -27,7 +27,7 @@ struct states
     byte packet_id;
 } robot_state;
 
-void BLE_TX_init()
+void BLE_UNO_init()
 {
     val = {.left_joystick = 26,
            .right_joystick = 76,
