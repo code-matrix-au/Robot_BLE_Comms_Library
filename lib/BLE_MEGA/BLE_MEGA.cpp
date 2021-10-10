@@ -1,6 +1,7 @@
 #include "Arduino.h"
 #include "SerialTransfer.h"
 
+#define debug 1
 
 SerialTransfer dataPayload;
 
@@ -38,13 +39,43 @@ void BLE_MEGA_init()
     startMillis = millis();
 }
 
+void print_control_data(){
+    Serial.print("control data : ");
+    Serial.print(val.left_joystick);
+    Serial.print(" | ");
+    Serial.print(val.right_joystick);
+    Serial.print(" | ");
+    Serial.print(val.emergency_stop);
+    Serial.print(" | ");
+    Serial.print(val.start_stop);
+    Serial.print(" | ");
+    Serial.println(val.open_close);
+}
+
+void print_Robot_State(){
+    Serial.print("Robot State data : ");
+    Serial.print(robot_state.rpm_l);
+    Serial.print(" | ");
+    Serial.print(robot_state.rpm_r);
+    Serial.print(" | ");
+    Serial.print(robot_state.door_state);
+    Serial.print(" | ");
+    Serial.print(robot_state.moving_status);
+    Serial.print(" | ");
+    Serial.println(robot_state.feedback_status);    
+}
 // transmit data
 void transmit_data()
 {
     uint16_t packetSize = 0;
     packetSize = dataPayload.txObj(robot_state, packetSize);
     dataPayload.sendData(packetSize);
+        if(debug){
+    print_control_data();
+    print_Robot_State();
+    }
 }
+
 
 
 // read serial data if its available
