@@ -1,6 +1,6 @@
 #include "Arduino.h"
 #include "SerialTransfer.h"
-#include "Wire.h"
+
 
 SerialTransfer dataPayload;
 
