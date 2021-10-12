@@ -10,7 +10,7 @@ unsigned long startMillis;
 unsigned long currentMillis;
 
 struct values
-{   
+{
     byte left_joystick;
     byte right_joystick;
     bool emergency_stop;
@@ -33,8 +33,7 @@ void BLE_UNO_init()
            .right_joystick = 76,
            .emergency_stop = 0,
            .start_stop = 1,
-           .open_close = 0        
-           };
+           .open_close = 0};
 
     mySerial.begin(9600);
     Serial.begin(9600);
@@ -48,7 +47,8 @@ void BLE_UNO_init()
     startMillis = millis();
 }
 
-void print_control_data(){
+void print_control_data()
+{
     Serial.print("control data : ");
     Serial.print(val.left_joystick);
     Serial.print(" | ");
@@ -61,7 +61,8 @@ void print_control_data(){
     Serial.println(val.open_close);
 }
 
-void print_Robot_State(){
+void print_Robot_State()
+{
     Serial.print("Robot State data : ");
     Serial.print(robot_state.rpm_l);
     Serial.print(" | ");
@@ -71,9 +72,8 @@ void print_Robot_State(){
     Serial.print(" | ");
     Serial.print(robot_state.moving_status);
     Serial.print(" | ");
-    Serial.println(robot_state.feedback_status);    
+    Serial.println(robot_state.feedback_status);
 }
-
 
 void transmit_data()
 {
@@ -81,9 +81,10 @@ void transmit_data()
     uint16_t packetSize = 0;
     packetSize = dataPayload.txObj(val, packetSize);
     dataPayload.sendData(packetSize);
-    if(debug){
-    print_control_data();
-    print_Robot_State();
+    if (debug)
+    {
+        print_control_data();
+        print_Robot_State();
     }
 }
 /**
@@ -116,52 +117,41 @@ int feedback_status()
 /**
  * Functions to write data and transmit 
  */
-void left_joystick(unsigned int x)
+void sendData(byte left_joystick, byte right_joystick, bool emergency_stop, bool start_stop, bool open_close)
 {
-    if (val.left_joystick != x)
+    bool new_data = false;
+
+    if (val.left_joystick != left_joystick)
     {
-        val.left_joystick = x;
+        val.left_joystick = left_joystick;
+        new_data = true;
+    }
+    else if (val.right_joystick != right_joystick)
+    {
+        val.right_joystick = right_joystick;
+        new_data = true;
+    }
+    else if (val.emergency_stop != emergency_stop)
+    {
+        val.emergency_stop = emergency_stop;
+        new_data = true;
+    }
+    else if (val.start_stop != start_stop)
+    {
+        val.start_stop = start_stop;
+        new_data = true;
+    }
+    else if (val.open_close != open_close)
+    {
+        val.open_close = open_close;
+        new_data = true;
+    }
+
+    if (new_data)
+    {
         transmit_data();
     }
 }
-
-void right_joystick(unsigned int x)
-{
-    if (val.right_joystick != x)
-    {
-        val.right_joystick = x;
-        transmit_data();
-    }
-}
-
-void emergency_stop(bool x)
-{
-    if (val.emergency_stop != x)
-    {
-        val.emergency_stop = x;
-        transmit_data();
-    }
-}
-
-void start_stop(bool x)
-{
-    if (val.start_stop != x)
-    {
-        startMillis = currentMillis;
-        val.start_stop = x;
-        transmit_data();
-    }
-}
-void open_close(bool x)
-{
-    if (val.open_close != x)
-    {
-        val.open_close = x;
-        transmit_data();
-    }
-}
-
-
 
 /**
  * arduino built in functions 
@@ -175,18 +165,19 @@ ISR(TIMER1_OVF_vect)
 
 void mySerialEvent()
 {
-    if(dataPayload.available())
+    if (dataPayload.available())
     {
         uint16_t packetSize = 0;
         packetSize = dataPayload.rxObj(robot_state, packetSize);
         startMillis = currentMillis;
     }
-    else{
+    else
+    {
         currentMillis = millis();
-        if(currentMillis - startMillis >= 3000)
+        if (currentMillis - startMillis >= 3000)
         {
             val.start_stop = false;
-            robot_state.moving_status= false;
+            robot_state.moving_status = false;
             startMillis = currentMillis;
         }
     }
