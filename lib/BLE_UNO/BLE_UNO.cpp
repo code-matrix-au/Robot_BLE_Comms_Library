@@ -9,8 +9,9 @@ SerialTransfer dataPayload;
 unsigned long startMillis;
 unsigned long currentMillis;
 
-enum link{Connected = 1, Disconnected = 0} ;
-link link_status;
+enum link{Connected = 1, Disconnected = 0};
+
+link link_status = Disconnected;
 
 
 struct values
@@ -117,6 +118,13 @@ int feedback_status()
 {
     return robot_state.feedback_status;
 }
+
+link connectionStatus(){
+    return link_status;
+}
+
+
+
 
 /**
  * Functions to write data and transmit 
