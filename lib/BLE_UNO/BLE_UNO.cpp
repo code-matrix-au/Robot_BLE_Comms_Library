@@ -126,22 +126,22 @@ void sendData(byte left_joystick, byte right_joystick, bool emergency_stop, bool
         val.left_joystick = left_joystick;
         new_data = true;
     }
-    else if (val.right_joystick != right_joystick)
+    if (val.right_joystick != right_joystick)
     {
         val.right_joystick = right_joystick;
         new_data = true;
     }
-    else if (val.emergency_stop != emergency_stop)
+    if (val.emergency_stop != emergency_stop)
     {
         val.emergency_stop = emergency_stop;
         new_data = true;
     }
-    else if (val.start_stop != start_stop)
+    if (val.start_stop != start_stop)
     {
         val.start_stop = start_stop;
         new_data = true;
     }
-    else if (val.open_close != open_close)
+    if (val.open_close != open_close)
     {
         val.open_close = open_close;
         new_data = true;
