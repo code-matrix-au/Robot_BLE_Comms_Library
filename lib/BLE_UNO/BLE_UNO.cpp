@@ -9,10 +9,7 @@ SerialTransfer dataPayload;
 unsigned long startMillis;
 unsigned long currentMillis;
 
-enum link{Connected = 1, Disconnected = 0};
-
-link link_status = Disconnected;
-
+bool link_status = false;
 
 struct values
 {
@@ -119,11 +116,9 @@ int feedback_status()
     return robot_state.feedback_status;
 }
 
-link connectionStatus(){
+bool connectionStatus(){
     return link_status;
 }
-
-
 
 
 /**
@@ -155,7 +150,7 @@ void mySerialEvent()
     {
         uint16_t packetSize = 0;
         packetSize = dataPayload.rxObj(robot_state, packetSize);
-        link_status = Connected;
+        link_status = true;
         startMillis = currentMillis;
     }
     else
@@ -163,7 +158,7 @@ void mySerialEvent()
         currentMillis = millis();
         if (currentMillis - startMillis >= 3000)
         {
-            link_status = Disconnected;
+            link_status = false;
             startMillis = currentMillis;
         }
     }
