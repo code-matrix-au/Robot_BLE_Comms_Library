@@ -119,38 +119,13 @@ int feedback_status()
  */
 void sendData(byte left_joystick, byte right_joystick, bool emergency_stop, bool start_stop, bool open_close)
 {
-    bool new_data = false;
-
-    if (val.left_joystick != left_joystick)
-    {
         val.left_joystick = left_joystick;
-        new_data = true;
-    }
-    if (val.right_joystick != right_joystick)
-    {
         val.right_joystick = right_joystick;
-        new_data = true;
-    }
-    if (val.emergency_stop != emergency_stop)
-    {
         val.emergency_stop = emergency_stop;
-        new_data = true;
-    }
-    if (val.start_stop != start_stop)
-    {
         val.start_stop = start_stop;
-        new_data = true;
-    }
-    if (val.open_close != open_close)
-    {
         val.open_close = open_close;
-        new_data = true;
-    }
-
-    if (new_data)
-    {
         transmit_data();
-    }
+    
 }
 
 /**
