@@ -9,6 +9,10 @@ SerialTransfer dataPayload;
 unsigned long startMillis;
 unsigned long currentMillis;
 
+enum link{Connected = 1, Disconnected = 0} ;
+link link_status;
+
+
 struct values
 {
     byte left_joystick;
@@ -119,13 +123,12 @@ int feedback_status()
  */
 void sendData(byte left_joystick, byte right_joystick, bool emergency_stop, bool start_stop, bool open_close)
 {
-        val.left_joystick = left_joystick;
-        val.right_joystick = right_joystick;
-        val.emergency_stop = emergency_stop;
-        val.start_stop = start_stop;
-        val.open_close = open_close;
-        transmit_data();
-    
+    val.left_joystick = left_joystick;
+    val.right_joystick = right_joystick;
+    val.emergency_stop = emergency_stop;
+    val.start_stop = start_stop;
+    val.open_close = open_close;
+    transmit_data();
 }
 
 /**
@@ -144,6 +147,7 @@ void mySerialEvent()
     {
         uint16_t packetSize = 0;
         packetSize = dataPayload.rxObj(robot_state, packetSize);
+        link_status = Connected;
         startMillis = currentMillis;
     }
     else
@@ -151,8 +155,7 @@ void mySerialEvent()
         currentMillis = millis();
         if (currentMillis - startMillis >= 3000)
         {
-            val.start_stop = false;
-            robot_state.moving_status = false;
+            link_status = Disconnected;
             startMillis = currentMillis;
         }
     }
